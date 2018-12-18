@@ -1,0 +1,5 @@
+<launch>
+    <test test-name="tracking_point_reference_tests" pkg="robohub_object_tracking" type="test_tracking_point_reference.py"/>
+    <test test-name="tracked_object_tests" pkg="robohub_object_tracking" type="test_tracked_object.py"/>
+    <test test-name="tracking_system_tests" pkg="robohub_object_tracking" type="test_tracking_system.py"/>
+</launch>
