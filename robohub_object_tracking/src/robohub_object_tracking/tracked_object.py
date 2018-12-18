@@ -1,6 +1,7 @@
 from geometry_msgs.msg import Pose
 
 from tracking_systems_list import TrackingSystemsList
+import geometry_utils
 
 class TrackedObject:
 
@@ -10,6 +11,8 @@ class TrackedObject:
         self._pose.orientation.w = 1
 
         self._tracking_points = {TrackingSystemsList.ARUCO: {}, TrackingSystemsList.VICON: {}}
+
+        self._query_points = {}
 
     def add_tracking_point(self, system, id, offset):
         self._tracking_points[system] = {str(id): offset}
@@ -28,6 +31,13 @@ class TrackedObject:
     def get_tracking_point_offset(self, system, id):
         return self._tracking_points[system][str(id)]
 
+    def add_query_point(self, name, pose):
+        self._query_points[str(name)] = pose
+
+    def get_query_point_pose(self, name):
+        pose = self._query_points[str(name)]
+        return geometry_utils.transform_pose(pose, self.get_pose())
+
     def update_pose(self, new_pose):
         self._pose = new_pose
 
@@ -36,3 +46,5 @@ class TrackedObject:
 
     def get_frame(self):
         return self._frame
+
+    

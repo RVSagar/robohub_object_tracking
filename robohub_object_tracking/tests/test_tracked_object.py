@@ -9,7 +9,9 @@ import std_msgs
 from robohub_object_tracking import TrackedObject
 from robohub_object_tracking import TrackingSystemsList
 
-class TestAll(unittest.TestCase):
+from geometry_msgs.msg import Pose, Point, Quaternion
+
+class TestBasics(unittest.TestCase):
 
     def setUp(self):
         pass
@@ -99,6 +101,63 @@ class TestAll(unittest.TestCase):
         to = TrackedObject("world")
         self.assertEquals(to.get_frame(), "world")
 
+
+class TestQueryPoints(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_add_query_point(self):
+        to = TrackedObject("map")
+
+        self.assertEquals(len(to._query_points.keys()), 0)
+
+        to.add_query_point("pt1", None)
+        self.assertEquals(len(to._query_points.keys()), 1)
+
+        to.add_query_point("pt1", 3)
+        self.assertEquals(len(to._query_points.keys()), 1)
+
+        to.add_query_point("pt2", 4)
+        self.assertEquals(len(to._query_points.keys()), 2)
+    
+    def test_get_query_point(self):
+        to = TrackedObject("map")
+
+        p1 = Pose()
+        p1.position = Point(*(1, 2, 3))
+        p1.orientation = Quaternion(*(0, 0, 0, 1))
+
+        to.add_query_point("p1", p1)
+        self.assertEquals(to.get_query_point_pose("p1"), p1)
+
+        p2 = Pose()
+        p2.position = Point(*(4, 5, 6))
+        p2.orientation = Quaternion(*(0, 0, 0, 1))
+
+        to.add_query_point("p2", p2)
+        self.assertEquals(to.get_query_point_pose("p2"), p2)
+
+    def test_query_point_updates_with_base_pose(self):
+        to = TrackedObject("map")
+
+        p1 = Pose()
+        p1.position = Point(*(1, 2, 3))
+        p1.orientation = Quaternion(*(0, 0, 0, 1))
+
+        to.add_query_point("p1", p1)
+        self.assertEquals(to.get_query_point_pose("p1"), p1)
+
+        to._pose.position.x = 1
+        p2 = Pose()
+        p2.position = Point(*(2, 2, 3))
+        p2.orientation = Quaternion(*(0, 0, 0, 1))
+
+        self.assertEquals(to.get_query_point_pose("p1"), p2)
+    
+
+
 if __name__ == '__main__':
     import rostest
-    rostest.rosrun(PKG, 'tracked_object_tests', TestAll)
+    rostest.rosrun(PKG, 'tracked_object_tests', TestBasics)
+    rostest.rosrun(PKG, 'tracked_object_tests', TestQueryPoints)
