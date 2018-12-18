@@ -18,7 +18,7 @@ class TrackingSystem:
     def update_objects(self, system, tracked_id, new_pose):
         for obj in self._tracked_objects:
             if obj.has_tracking_point(system, tracked_id):
-                self.update_object_pose.(obj, system, tracked_id, new_pose)
+                self.update_object_pose(obj, system, tracked_id, new_pose)
 
     def update_object_pose(self, obj, system, id, new_pose):
         tracking_offset = obj.get_tracking_point_offset(system, tracked_id)
@@ -30,6 +30,8 @@ class TrackingSystem:
 
 
     def calculate_base_pose(self, tracked_pose, offset):
+        pass
 
     def transform_pose_to_frame(self, pose, frame):
+        pass
         
