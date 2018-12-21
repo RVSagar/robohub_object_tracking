@@ -9,7 +9,7 @@ import std_msgs
 from robohub_object_tracking import TrackedObject
 from robohub_object_tracking import TrackingSystemsList
 
-from geometry_msgs.msg import Pose, Point, Quaternion
+from geometry_msgs.msg import PoseStamped, Point, Quaternion
 
 class TestBasics(unittest.TestCase):
 
@@ -124,16 +124,16 @@ class TestQueryPoints(unittest.TestCase):
     def test_get_query_point(self):
         to = TrackedObject("map")
 
-        p1 = Pose()
-        p1.position = Point(*(1, 2, 3))
-        p1.orientation = Quaternion(*(0, 0, 0, 1))
+        p1 = PoseStamped()
+        p1.pose.position = Point(*(1, 2, 3))
+        p1.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
         to.add_query_point("p1", p1)
         self.assertEquals(to.get_query_point_pose("p1"), p1)
 
-        p2 = Pose()
-        p2.position = Point(*(4, 5, 6))
-        p2.orientation = Quaternion(*(0, 0, 0, 1))
+        p2 = PoseStamped()
+        p2.pose.position = Point(*(4, 5, 6))
+        p2.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
         to.add_query_point("p2", p2)
         self.assertEquals(to.get_query_point_pose("p2"), p2)
@@ -141,17 +141,17 @@ class TestQueryPoints(unittest.TestCase):
     def test_query_point_updates_with_base_pose(self):
         to = TrackedObject("map")
 
-        p1 = Pose()
-        p1.position = Point(*(1, 2, 3))
-        p1.orientation = Quaternion(*(0, 0, 0, 1))
+        p1 = PoseStamped()
+        p1.pose.position = Point(*(1, 2, 3))
+        p1.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
         to.add_query_point("p1", p1)
         self.assertEquals(to.get_query_point_pose("p1"), p1)
 
         to._pose.position.x = 1
-        p2 = Pose()
-        p2.position = Point(*(2, 2, 3))
-        p2.orientation = Quaternion(*(0, 0, 0, 1))
+        p2 = PoseStamped()
+        p2.pose.position = Point(*(2, 2, 3))
+        p2.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
         self.assertEquals(to.get_query_point_pose("p1"), p2)
     

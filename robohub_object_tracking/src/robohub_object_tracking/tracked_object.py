@@ -1,4 +1,4 @@
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 
 from tracking_systems_list import TrackingSystemsList
 import geometry_utils
@@ -7,8 +7,10 @@ class TrackedObject:
 
     def __init__(self, desired_frame):
         self._frame = desired_frame
-        self._pose = Pose()
-        self._pose.orientation.w = 1
+        self._pose = PoseStamped()
+        self._pose.header.frame_id = desired_frame
+        self._pose.pose.orientation.w = 1
+        
 
         self._tracking_points = {TrackingSystemsList.ARUCO: {}, TrackingSystemsList.VICON: {}}
 
