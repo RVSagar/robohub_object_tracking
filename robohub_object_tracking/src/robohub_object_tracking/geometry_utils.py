@@ -39,17 +39,6 @@ def create_matrix_from_pose_msg(pose):
     return mat
 
 def calculate_inverse_pose(in_pose):
-    '''
-    p = PoseStamped()
-    p.pose.position.x = -in_pose.pose.position.x
-    p.pose.position.y = -in_pose.pose.position.y
-    p.pose.position.z = -in_pose.pose.position.z
-
-    p.pose.orientation.x = -in_pose.pose.orientation.x
-    p.pose.orientation.y = -in_pose.pose.orientation.y
-    p.pose.orientation.z = -in_pose.pose.orientation.z
-    p.pose.orientation.w = in_pose.pose.orientation.w
-    '''
     mat = create_matrix_from_pose_msg(in_pose.pose)
     mat = np.linalg.inv(mat)
     p = create_pose_msg_from_matrix(mat)

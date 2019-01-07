@@ -2,6 +2,8 @@ import rospy
 
 from tf import TransformListener
 from tracking_systems_list import TrackingSystemsList
+import geometry_utils
+from geometry_msgs.msg import PoseStamped
 from robohub_object_tracking.msg import TrackedObjectPoseList
 from aruco_msgs.msg import Marker, MarkerArray
 
@@ -35,7 +37,7 @@ class TrackingSystem:
         pass
 
     def custom_tracking_callback(self, msg):
-        objects = [(tracked.id, tracked.pose) for tracked in msg.objects]
+        objects = [(tracked.id, tracked.pose) for tracked in msg.object_list]
         self.perform_updates_for_tracked_objects_list(TrackingSystemsList.CUSTOM, objects)
 
     def perform_updates_for_tracked_objects_list(self, system, objects):
@@ -48,17 +50,19 @@ class TrackingSystem:
             if obj.has_tracking_point(system, tracked_id):
                 self.update_object_pose(obj, system, tracked_id, new_pose)
 
-    def update_object_pose(self, obj, system, id, new_pose):
+    def update_object_pose(self, obj, system, tracked_id, new_pose):
         tracking_offset = obj.get_tracking_point_offset(system, tracked_id)
-
         obj_base_pose = self.calculate_base_pose(new_pose, tracking_offset)
         obj_pose = self.transform_pose_to_frame(obj_base_pose, obj.get_frame())
-
         obj.update_pose(obj_pose)
 
 
     def calculate_base_pose(self, tracked_pose, offset):
-        pass
+        m_new = geometry_utils.transform_pose(geometry_utils.calculate_inverse_pose(offset), tracked_pose)
+        new_pose = PoseStamped()
+        new_pose.pose = m_new
+
+        return new_pose
 
     def transform_pose_to_frame(self, pose, frame):
         return self._tf_listener.transformPose(frame, pose)

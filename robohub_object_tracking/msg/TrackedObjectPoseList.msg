@@ -1,1 +1,1 @@
-robohub_object_tracking/TrackedObjectPose[] objects
+robohub_object_tracking/TrackedObjectPose[] object_list
