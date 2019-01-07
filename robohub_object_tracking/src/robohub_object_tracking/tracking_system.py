@@ -20,7 +20,7 @@ class TrackingSystem:
         self._tf_listener = None
 
     def initialize_subscribers(self):
-        self.custom_subscriber = rospy.Subscriber("robothub_object_tracking/custom_tracked_objects", TrackedObjectPoseList)
+        self.custom_subscriber = rospy.Subscriber("robohub_object_tracking/custom_tracked_objects", TrackedObjectPoseList, self.custom_tracking_callback)
 
     def initialize_transform_listener(self):
         self._tf_listener = TransformListener()
@@ -60,6 +60,7 @@ class TrackingSystem:
     def calculate_base_pose(self, tracked_pose, offset):
         m_new = geometry_utils.transform_pose(geometry_utils.calculate_inverse_pose(offset), tracked_pose)
         new_pose = PoseStamped()
+        new_pose.header.frame_id = tracked_pose.header.frame_id
         new_pose.pose = m_new
 
         return new_pose
