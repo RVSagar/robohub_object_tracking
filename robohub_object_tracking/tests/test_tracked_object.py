@@ -125,6 +125,7 @@ class TestQueryPoints(unittest.TestCase):
         to = TrackedObject("map")
 
         p1 = PoseStamped()
+        p1.header.frame_id = 'map'
         p1.pose.position = Point(*(1, 2, 3))
         p1.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
@@ -132,6 +133,7 @@ class TestQueryPoints(unittest.TestCase):
         self.assertEquals(to.get_query_point_pose("p1"), p1)
 
         p2 = PoseStamped()
+        p2.header.frame_id = 'map'
         p2.pose.position = Point(*(4, 5, 6))
         p2.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
@@ -142,14 +144,16 @@ class TestQueryPoints(unittest.TestCase):
         to = TrackedObject("map")
 
         p1 = PoseStamped()
+        p1.header.frame_id = 'map'
         p1.pose.position = Point(*(1, 2, 3))
         p1.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
         to.add_query_point("p1", p1)
         self.assertEquals(to.get_query_point_pose("p1"), p1)
 
-        to._pose.position.x = 1
+        to._pose.pose.position.x = 1
         p2 = PoseStamped()
+        p2.header.frame_id = 'map'
         p2.pose.position = Point(*(2, 2, 3))
         p2.pose.orientation = Quaternion(*(0, 0, 0, 1))
 

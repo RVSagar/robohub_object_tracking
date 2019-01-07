@@ -38,7 +38,11 @@ class TrackedObject:
 
     def get_query_point_pose(self, name):
         pose = self._query_points[str(name)]
-        return geometry_utils.transform_pose(pose, self.get_pose())
+
+        out = PoseStamped()
+        out.header = self.get_pose().header
+        out.pose = geometry_utils.transform_pose(pose, self.get_pose())
+        return out
 
     def update_pose(self, new_pose):
         self._pose = new_pose

@@ -10,8 +10,8 @@ def transform_pose(offset, base):
     # Transforms offset to be a pose with respect to base's frame
     # Keep Base's frame
     # In matrix terms: result = [base][offset]
-    base_mat = create_matrix_from_pose_msg(base)
-    offset_mat = create_matrix_from_pose_msg(offset)
+    base_mat = create_matrix_from_pose_msg(base.pose)
+    offset_mat = create_matrix_from_pose_msg(offset.pose)
     final_mat = np.dot(base_mat, offset_mat)
 
     return create_pose_msg_from_matrix(final_mat)
@@ -27,7 +27,7 @@ def create_pose_msg_from_matrix(matrix):
     return p
 
 def create_matrix_from_pose_msg(pose):
-    pos = pose.pose.position
+    pos = pose.position
     orien = pose.orientation
     t = (pos.x, pos.y, pos.z)
     o = (orien.x, orien.y, orien.z, orien.w)

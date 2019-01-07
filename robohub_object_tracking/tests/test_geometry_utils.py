@@ -29,6 +29,17 @@ class TestTransformPose(unittest.TestCase):
 
     def assert_pose_almost_equal(self, pose, vec, quat):
         # Vec (x,y,z), Quat(x,y,z,q) are tuples
+        self.assertAlmostEquals(pose.position.x, vec[0])
+        self.assertAlmostEquals(pose.position.y, vec[1])
+        self.assertAlmostEquals(pose.position.z, vec[2])
+
+        self.assertAlmostEquals(pose.orientation.x, quat[0])
+        self.assertAlmostEquals(pose.orientation.y, quat[1])
+        self.assertAlmostEquals(pose.orientation.z, quat[2])
+        self.assertAlmostEquals(pose.orientation.w, quat[3])
+
+    def assert_pose_stamped_almost_equal(self, pose, vec, quat):
+        # Vec (x,y,z), Quat(x,y,z,q) are tuples
         self.assertAlmostEquals(pose.pose.position.x, vec[0])
         self.assertAlmostEquals(pose.pose.position.y, vec[1])
         self.assertAlmostEquals(pose.pose.position.z, vec[2])
@@ -39,24 +50,28 @@ class TestTransformPose(unittest.TestCase):
         self.assertAlmostEquals(pose.pose.orientation.w, quat[3])
 
     def test_identity_transformation_base(self):
-        base = self.create_pose()
+        base = PoseStamped()
+        base.pose.position = Point(*ZERO_POS)
+        base.pose.orientation = Quaternion(*IDEN_QUAT)
+
         offset = self.create_pose()
 
-        res = geometry_utils.transform_pose(offset, IDEN_QUAT)
+        res = geometry_utils.transform_pose(offset, base)
+        self.assert_pose_almost_equal(res, ZERO_POS, IDEN_QUAT)
 
     def test_identity_transformation_offset(self):
         base = self.create_pose()
         offset = self.create_pose()
 
-        offset.position.x = 1
+        offset.pose.position.x = 1
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,0,0), IDEN_QUAT)
 
-        offset.position.y = 2
+        offset.pose.position.y = 2
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,2,0), IDEN_QUAT)
 
-        offset.position.z = 3
+        offset.pose.position.z = 3
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,2,3), IDEN_QUAT)
 
@@ -64,31 +79,31 @@ class TestTransformPose(unittest.TestCase):
         base = self.create_pose()
         offset = self.create_pose()
 
-        offset.orientation.x = 1
-        offset.orientation.w = 0
+        offset.pose.orientation.x = 1
+        offset.pose.orientation.w = 0
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, ZERO_POS, (1,0,0,0))
 
         r = 1.0/math.sqrt(2)
-        offset.orientation.x = r
-        offset.orientation.y = r
-        offset.orientation.w = 0
+        offset.pose.orientation.x = r
+        offset.pose.orientation.y = r
+        offset.pose.orientation.w = 0
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, ZERO_POS, (r,r,0,0))
 
         r = 1.0/math.sqrt(3)
-        offset.orientation.x = r
-        offset.orientation.y = r
-        offset.orientation.z = r
-        offset.orientation.w = 0
+        offset.pose.orientation.x = r
+        offset.pose.orientation.y = r
+        offset.pose.orientation.z = r
+        offset.pose.orientation.w = 0
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, ZERO_POS, (r,r,r,0))
 
         r = 1.0/math.sqrt(4)
-        offset.orientation.x = r
-        offset.orientation.y = r
-        offset.orientation.z = r
-        offset.orientation.w = r
+        offset.pose.orientation.x = r
+        offset.pose.orientation.y = r
+        offset.pose.orientation.z = r
+        offset.pose.orientation.w = r
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, ZERO_POS, (r,r,r,r))
     
@@ -96,15 +111,15 @@ class TestTransformPose(unittest.TestCase):
         base = self.create_pose()
         offset = self.create_pose()
 
-        base.position.x = 1
+        base.pose.position.x = 1
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,0,0), IDEN_QUAT)
 
-        base.position.y = 2
+        base.pose.position.y = 2
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,2,0), IDEN_QUAT)
 
-        base.position.z = 3
+        base.pose.position.z = 3
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (1,2,3), IDEN_QUAT)
 
@@ -152,26 +167,26 @@ class TestTransformPose(unittest.TestCase):
     def test_orientation_of_base_yaw(self):
         base = self.create_pose()
         offset = self.create_pose()
-        offset.position = Point(*(1, 0, 0))
+        offset.pose.position = Point(*(1, 0, 0))
 
         quat = tf.transformations.quaternion_from_euler(0, 0, math.pi*0.5)
-        base.orientation = Quaternion(*quat)
+        base.pose.orientation = Quaternion(*quat)
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (0,1,0), quat)
 
         quat = tf.transformations.quaternion_from_euler(0, 0, -math.pi*0.5)
-        base.orientation = Quaternion(*quat)
+        base.pose.orientation = Quaternion(*quat)
         res = geometry_utils.transform_pose(offset, base)
         self.assert_pose_almost_equal(res, (0,-1,0), quat)
 
     def test_full_transformation(self):
-        base = Pose()
-        base.position = Point(*(1, 2, 3))
-        base.orientation = Quaternion(*tf.transformations.quaternion_from_euler(math.pi*0.5, 0, 0))
+        base = PoseStamped()
+        base.pose.position = Point(*(1, 2, 3))
+        base.pose.orientation = Quaternion(*tf.transformations.quaternion_from_euler(math.pi*0.5, 0, 0))
     
-        offset = Pose()
-        offset.position = Point(*(4, 5, 6))
-        offset.orientation = Quaternion(*tf.transformations.quaternion_from_euler(math.pi*0.5, 0, 0))
+        offset = PoseStamped()
+        offset.pose.position = Point(*(4, 5, 6))
+        offset.pose.orientation = Quaternion(*tf.transformations.quaternion_from_euler(math.pi*0.5, 0, 0))
 
         res = geometry_utils.transform_pose(offset, base)
         quat = tf.transformations.quaternion_from_euler(math.pi, 0, 0)
@@ -211,7 +226,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*(1, 0, 0))
         p.pose.orientation = Quaternion(*q)
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -220,7 +235,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*(0, 2, 0))
         p.pose.orientation = Quaternion(*q)
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -229,7 +244,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*(0, 0, 3))
         p.pose.orientation = Quaternion(*q)
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -246,7 +261,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*v)
         p.pose.orientation = Quaternion(*(q2, 0, 0, q2))
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -255,7 +270,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*v)
         p.pose.orientation = Quaternion(*(0, q2, 0, q2))
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -264,7 +279,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*v)
         p.pose.orientation = Quaternion(*(0, 0, q2, q2))
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -273,7 +288,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*v)
         p.pose.orientation = Quaternion(*(q3, q3, q3, 0))
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -282,7 +297,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.position = Point(*v)
         p.pose.orientation = Quaternion(*(q4, q4, q4, q4))
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
         quick_fix = PoseStamped()
         quick_fix.pose = result
         self.assert_pose_almost_equal(quick_fix, (0, 0, 0), (0, 0, 0, 1))
@@ -295,7 +310,7 @@ class TestInvertPose(unittest.TestCase):
         p.pose.orientation = Quaternion(*q)
 
         inv = geometry_utils.calculate_inverse_pose(p)
-        result = geometry_utils.transform_pose(p.pose, inv.pose)
+        result = geometry_utils.transform_pose(p, inv)
 
         quick_fix = PoseStamped()
         quick_fix.pose = result
@@ -315,7 +330,7 @@ class TestInvertPose(unittest.TestCase):
             p.pose.orientation = Quaternion(*q)
 
             inv = geometry_utils.calculate_inverse_pose(p)
-            result = geometry_utils.transform_pose(p.pose, inv.pose)
+            result = geometry_utils.transform_pose(p, inv)
 
             quick_fix = PoseStamped()
             quick_fix.pose = result
