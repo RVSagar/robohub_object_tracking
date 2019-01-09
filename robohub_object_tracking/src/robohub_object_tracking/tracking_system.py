@@ -5,7 +5,6 @@ from tracking_systems_list import TrackingSystemsList
 import geometry_utils
 from geometry_msgs.msg import PoseStamped
 from robohub_object_tracking.msg import TrackedObjectPoseList
-from aruco_msgs.msg import Marker, MarkerArray
 
 class TrackingSystem:
 
