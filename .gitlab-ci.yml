@@ -1,8 +1,9 @@
-image: ros:indigo-robot
+image: ros:indigo-ros-base
 build:
   stage: build
 
   before_script: 
+     - apt update && apt install build-essential -y
      - mkdir -p catkin_ws/src
      - cd catkin_ws/src
      - catkin_init_workspace
