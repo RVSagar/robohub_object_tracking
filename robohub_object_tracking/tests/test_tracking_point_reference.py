@@ -6,7 +6,6 @@ import roslib; roslib.load_manifest(PKG)
 import unittest
 import std_msgs
 
-import ca_kitting_bot
 from robohub_object_tracking import TrackingPointReference
 from geometry_msgs.msg import Pose
 
