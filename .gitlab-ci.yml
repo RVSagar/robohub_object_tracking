@@ -1,0 +1,21 @@
+image: ros:indigo-ros-base
+build:
+  stage: build
+
+  before_script: 
+     - mkdir -p catkin_ws/src
+     - cd catkin_ws/src
+     - catkin_init_workspace
+     - cd ../..
+     - cp -r robohub_object_tracking catkin_ws/src
+     - cd catkin_ws
+     - catkin_make
+     - source devel/setup.bash
+  script: 
+    - rostest robohub_object_tracking run_tests.test
+
+# run tests using the binary built before
+#test:
+#  stage: test
+#  script:
+#    - ./runmytests.sh
