@@ -3,7 +3,7 @@ build:
   stage: build
 
   before_script: 
-     - apt update && apt install build-essential -y
+     - apt update && apt install build-essential ros-indigo-tf -y
      - mkdir -p catkin_ws/src
      - cd catkin_ws/src
      - catkin_init_workspace
