@@ -1,4 +1,4 @@
-image: ros:indigo-ros-base
+image: ros:indigo-robot
 build:
   stage: build
 
