@@ -12,6 +12,8 @@ build:
      - cd catkin_ws
      - catkin_make
      - source devel/setup.bash
+     - ls
+     - env | grep PYTHON
   script: 
     - rostest robohub_object_tracking run_tests.test
 
