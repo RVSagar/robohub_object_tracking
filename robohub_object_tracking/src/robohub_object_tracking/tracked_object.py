@@ -1,6 +1,5 @@
 from geometry_msgs.msg import PoseStamped
 
-from tracking_systems_list import TrackingSystemsList
 import geometry_utils
 
 class TrackedObject:
@@ -12,7 +11,7 @@ class TrackedObject:
         self._pose.pose.orientation.w = 1
         
 
-        self._tracking_points = {TrackingSystemsList.ARUCO: {}, TrackingSystemsList.VICON: {}}
+        self._tracking_points = {}
 
         self._query_points = {}
 
@@ -20,6 +19,8 @@ class TrackedObject:
         self._tracking_points[system] = {str(id): offset}
 
     def is_tracked_by(self, system):
+        if system not in self._tracking_points.keys():
+            return False
         return len(self._tracking_points[system].keys()) > 0
 
     def has_tracking_point(self, system, id):

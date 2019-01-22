@@ -1,7 +1,6 @@
 import rospy
 
 from tf import TransformListener
-from tracking_systems_list import TrackingSystemsList
 import geometry_utils
 from geometry_msgs.msg import PoseStamped
 from robohub_object_tracking.msg import TrackedObjectPoseList
@@ -9,35 +8,26 @@ from robohub_object_tracking.msg import TrackedObjectPoseList
 class TrackingSystem:
 
     def __init__(self):
-        self.marker_array_topic = "/robohub/object_tracking/aruco_markers"
-        self._tracked_objects = []
-
-        self._vicon_subscriber = None
-        self._aruco_subscriber = None
-        self._custom_subscriber = None
-
         self._tf_listener = None
-
-    def initialize_subscribers(self):
-        self.custom_subscriber = rospy.Subscriber("robohub_object_tracking/custom_tracked_objects", TrackedObjectPoseList, self.custom_tracking_callback)
+        self._tracked_objects = []
+        self._tracking_plugins = {}
 
     def initialize_transform_listener(self):
         self._tf_listener = TransformListener()
 
     def add_tracked_object(self, tracked_object):
         self._tracked_objects.append(tracked_object)
- 
-    def vicon_callback(self, msg):
-        # Frame of measurements comes from TODO
-        pass
-    
-    def aruco_callback(self, msg):
-        # Frame of measuremets comes from TODO
-        pass
 
-    def custom_tracking_callback(self, msg):
+    def add_tracking_plugin(self, plugin):
+        plugin.set_callback(self.plugin_general_tracking_callback)
+        self._tracking_plugins[plugin.get_name()] = plugin
+
+    def remove_tracking_plugin(self, name):
+        self._tracking_plugins[name] = None
+
+    def plugin_general_tracking_callback(self, name, msg):
         objects = [(tracked.id, tracked.pose) for tracked in msg.object_list]
-        self.perform_updates_for_tracked_objects_list(TrackingSystemsList.CUSTOM, objects)
+        self.perform_updates_for_tracked_objects_list(name, objects)
 
     def perform_updates_for_tracked_objects_list(self, system, objects):
         # Expect list of tuples (id, pose)

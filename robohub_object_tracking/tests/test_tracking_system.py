@@ -7,9 +7,7 @@ import unittest
 import std_msgs
 
 from robohub_object_tracking import TrackingSystem
-from robohub_object_tracking import TrackingSystemsList
 from robohub_object_tracking import TrackedObject
-from robohub_object_tracking import TrackingSystemsList
 
 from robohub_object_tracking.msg import TrackedObjectPose, TrackedObjectPoseList
 
@@ -59,7 +57,7 @@ class TestObjectUpdates(unittest.TestCase):
     def test_accepts_empty_custom_msg(self):
         ts = TrackingSystem()
         msg = TrackedObjectPoseList()
-        ts.custom_tracking_callback(msg)
+        ts.plugin_general_tracking_callback("Custom", msg)
     
     def test_update_with_no_matches(self):
         ts = TrackingSystem()
@@ -67,7 +65,7 @@ class TestObjectUpdates(unittest.TestCase):
         to = TrackedObject("map")
         to_pose = PoseStamped()
         to_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-        to.add_tracking_point(TrackingSystemsList.CUSTOM, "1", to_pose)
+        to.add_tracking_point("Custom", "1", to_pose)
         ts.add_tracked_object(to)
 
         msg = TrackedObjectPoseList()
@@ -76,7 +74,7 @@ class TestObjectUpdates(unittest.TestCase):
         obj.pose = PoseStamped()
         msg.object_list = [obj]
 
-        ts.custom_tracking_callback(msg)
+        ts.plugin_general_tracking_callback("Custom", msg)
 
         self.assert_pose_stamped_almost_equal(to.get_pose(), (0,0,0), (0,0,0,1))
         
@@ -89,7 +87,7 @@ class TestObjectUpdates(unittest.TestCase):
         to_pose = PoseStamped()
         to_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
-        to.add_tracking_point(TrackingSystemsList.CUSTOM, "1", to_pose)
+        to.add_tracking_point("Custom", "1", to_pose)
         ts.add_tracked_object(to)
 
         msg = TrackedObjectPoseList()
@@ -101,7 +99,7 @@ class TestObjectUpdates(unittest.TestCase):
         obj.pose = ps
         msg.object_list = [obj]
 
-        ts.custom_tracking_callback(msg)
+        ts.plugin_general_tracking_callback("Custom", msg)
 
         self.assert_pose_stamped_almost_equal(to.get_pose(), (3,4,5), (0,0,0,1))
 
@@ -114,7 +112,7 @@ class TestObjectUpdates(unittest.TestCase):
         to_pose.pose.position = Point(*(0, 0, 2))
         to_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
 
-        to.add_tracking_point(TrackingSystemsList.CUSTOM, "1", to_pose)
+        to.add_tracking_point("Custom", "1", to_pose)
         ts.add_tracked_object(to)
 
         msg = TrackedObjectPoseList()
@@ -126,7 +124,7 @@ class TestObjectUpdates(unittest.TestCase):
         obj.pose = ps
         msg.object_list = [obj]
 
-        ts.custom_tracking_callback(msg)
+        ts.plugin_general_tracking_callback("Custom", msg)
 
         self.assert_pose_stamped_almost_equal(to.get_pose(), (3,4,5-2), (0,0,0,1))
 
@@ -140,20 +138,20 @@ class TestObjectUpdates(unittest.TestCase):
         to1 = TrackedObject("map")
         to1_pose = PoseStamped()
         to1_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-        to1.add_tracking_point(TrackingSystemsList.CUSTOM, "1", to1_pose)
+        to1.add_tracking_point("Custom", "1", to1_pose)
         ts.add_tracked_object(to1)
 
         to2 = TrackedObject("map")
         to2_pose = PoseStamped()
         to2_pose.pose.position = Point(*(0, 0, 1))
         to2_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-        to2.add_tracking_point(TrackingSystemsList.CUSTOM, "2", to2_pose)
+        to2.add_tracking_point("Custom", "2", to2_pose)
         ts.add_tracked_object(to2)
 
         to3 = TrackedObject("map")
         to3_pose = PoseStamped()
         to3_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-        to3.add_tracking_point(TrackingSystemsList.CUSTOM, "3", to3_pose)
+        to3.add_tracking_point("Custom", "3", to3_pose)
         ts.add_tracked_object(to3)
 
 
@@ -182,7 +180,7 @@ class TestObjectUpdates(unittest.TestCase):
 
         msg.object_list = [obj1, obj2, obj4]
 
-        ts.custom_tracking_callback(msg)
+        ts.plugin_general_tracking_callback("Custom", msg)
 
         self.assert_pose_stamped_almost_equal(to1.get_pose(), (3,4,5), (0,0,0,1))
         self.assert_pose_stamped_almost_equal(to2.get_pose(), (6,-1,10-1), (0,0,0,1))
@@ -192,3 +190,4 @@ if __name__ == '__main__':
     import rostest
     rostest.rosrun(PKG, 'tracking_system_tests', TestAll)
     rostest.rosrun(PKG, 'tracking_system_tests', TestObjectUpdates)
+    rostest.rosrun(PKG, 'tracking_system_tests', TestTrackingPlugins)

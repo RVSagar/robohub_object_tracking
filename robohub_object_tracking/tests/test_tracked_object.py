@@ -7,8 +7,6 @@ import unittest
 import std_msgs
 
 from robohub_object_tracking import TrackedObject
-from robohub_object_tracking import TrackingSystemsList
-
 from geometry_msgs.msg import PoseStamped, Point, Quaternion
 
 class TestBasics(unittest.TestCase):
@@ -18,63 +16,63 @@ class TestBasics(unittest.TestCase):
 
     def test_initializes(self):
         to = TrackedObject("map")
-        self.assertEquals(to._tracking_points, {"Aruco": {}, "Vicon": {}})
+        self.assertEquals(to._tracking_points, {})
 
     def test_recognizes_tracking_systems(self):
         to = TrackedObject("map")
 
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.ARUCO), False)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.VICON), False)
+        self.assertEquals(to.is_tracked_by("Aruco"), False)
+        self.assertEquals(to.is_tracked_by("Vicon"), False)
 
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 0, None)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.ARUCO), True)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.VICON), False)
-
-        to = TrackedObject("map")
-        to.add_tracking_point(TrackingSystemsList.VICON, 0, None)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.ARUCO), False)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.VICON), True)
+        to.add_tracking_point("Aruco", 0, None)
+        self.assertEquals(to.is_tracked_by("Aruco"), True)
+        self.assertEquals(to.is_tracked_by("Vicon"), False)
 
         to = TrackedObject("map")
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 0, None)
-        to.add_tracking_point(TrackingSystemsList.VICON, 0, None)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.ARUCO), True)
-        self.assertEquals(to.is_tracked_by(TrackingSystemsList.VICON), True)
+        to.add_tracking_point("Vicon", 0, None)
+        self.assertEquals(to.is_tracked_by("Aruco"), False)
+        self.assertEquals(to.is_tracked_by("Vicon"), True)
+
+        to = TrackedObject("map")
+        to.add_tracking_point("Aruco", 0, None)
+        to.add_tracking_point("Vicon", 0, None)
+        self.assertEquals(to.is_tracked_by("Aruco"), True)
+        self.assertEquals(to.is_tracked_by("Vicon"), True)
 
     def test_has_tracking_point(self):
         to = TrackedObject("map")
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 0, "test")
+        to.add_tracking_point("Aruco", 0, "test")
 
         # Test Existence
-        self.assertEquals(to.has_tracking_point(TrackingSystemsList.ARUCO, 0), True)
+        self.assertEquals(to.has_tracking_point("Aruco", 0), True)
 
         # Test Wrong System, Wrong ID
-        self.assertEquals(to.has_tracking_point(TrackingSystemsList.VICON, 1), False)
+        self.assertEquals(to.has_tracking_point("Vicon", 1), False)
 
         # Test Wrong System, Correct ID
-        self.assertEquals(to.has_tracking_point(TrackingSystemsList.VICON, 0), False)
+        self.assertEquals(to.has_tracking_point("Vicon", 0), False)
 
         # Test Correct System, Wrong ID
-        self.assertEquals(to.has_tracking_point(TrackingSystemsList.ARUCO, 1), False)
+        self.assertEquals(to.has_tracking_point("Aruco", 1), False)
     
     def test_adds_tracking_points(self):
         to = TrackedObject("map")
 
         # Easier to test with simple object instead of Pose
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 0, "test")
-        self.assertEquals(to.get_tracking_point_offset(TrackingSystemsList.ARUCO, 0), "test")
+        to.add_tracking_point("Aruco", 0, "test")
+        self.assertEquals(to.get_tracking_point_offset("Aruco", 0), "test")
 
         # Update; Should get replaced
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 0, "test again")
-        self.assertEquals(to.get_tracking_point_offset(TrackingSystemsList.ARUCO, 0), "test again")
+        to.add_tracking_point("Aruco", 0, "test again")
+        self.assertEquals(to.get_tracking_point_offset("Aruco", 0), "test again")
 
         # New one; Make sure is different
-        to.add_tracking_point(TrackingSystemsList.ARUCO, 1, "test third")
-        self.assertEquals(to.get_tracking_point_offset(TrackingSystemsList.ARUCO, 1), "test third")
+        to.add_tracking_point("Aruco", 1, "test third")
+        self.assertEquals(to.get_tracking_point_offset("Aruco", 1), "test third")
 
         # Different system. Should allow id overlap
-        to.add_tracking_point(TrackingSystemsList.VICON, 0, "test vicon")
-        self.assertEquals(to.get_tracking_point_offset(TrackingSystemsList.VICON, 0), "test vicon")
+        to.add_tracking_point("Vicon", 0, "test vicon")
+        self.assertEquals(to.get_tracking_point_offset("Vicon", 0), "test vicon")
 
     def test_update_pose(self):
         to = TrackedObject("map")

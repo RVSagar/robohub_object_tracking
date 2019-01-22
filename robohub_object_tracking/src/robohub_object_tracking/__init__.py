@@ -1,5 +1,5 @@
 from tracking_point_reference import TrackingPointReference
 from tracking_system import TrackingSystem
 from tracked_object import TrackedObject
-from tracking_systems_list import TrackingSystemsList
 import geometry_utils
+from pose_detection_plugin import BasePoseDetectionPlugin

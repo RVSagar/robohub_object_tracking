@@ -9,6 +9,7 @@ from geometry_msgs.msg import PoseStamped, Quaternion, Point, Pose
 from visualization_msgs.msg import Marker
 
 from robohub_object_tracking import *
+from robohub_object_tracking_plugins import CustomMsgPassthroughPlugin
 from robohub_object_tracking.msg import TrackedObjectPose, TrackedObjectPoseList
 
 start_t = time.time()
@@ -20,6 +21,12 @@ start_t = time.time()
 #  pass them to the part that just needs to extract a query point pose
 ts = TrackingSystem()
 
+# Create a plugin to respond to receiving some outside information,
+#  and transform it into tracked poses
+# In this case, we just pass on the message, as it is in the correct form
+plugin = CustomMsgPassthroughPlugin()
+ts.add_tracking_plugin(plugin)
+
 
 # Give this object a tracking point 1m in -x
 # Have this tracked point detected at the origin, with different rotations
@@ -29,7 +36,7 @@ to1 = TrackedObject("map")
 to1_pose = PoseStamped()
 to1_pose.pose.position = Point(*(1, 0, 0))
 to1_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-to1.add_tracking_point(TrackingSystemsList.CUSTOM, "1", to1_pose)
+to1.add_tracking_point("Custom", "1", to1_pose)
 
 qpose = PoseStamped()
 qpose.pose.position = Point(*(0,-0.5,1))
@@ -46,7 +53,7 @@ to2 = TrackedObject("map")
 to2_pose = PoseStamped()
 to2_pose.pose.position = Point(*(0, 0, 0))
 to2_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
-to2.add_tracking_point(TrackingSystemsList.CUSTOM, "2", to2_pose)
+to2.add_tracking_point("Custom", "2", to2_pose)
 ts.add_tracked_object(to2)
 
 
@@ -54,8 +61,8 @@ ts.add_tracked_object(to2)
 def send_update_msgs():
     # Send custom tracking messages to update the tracking system's understanding
     #  of object positions
-    pub = rospy.Publisher("robohub_object_tracking/custom_tracked_objects", TrackedObjectPoseList, queue_size=5)
-
+    # Use the plugin
+    
     while not rospy.is_shutdown():
         dt = time.time() - start_t
         
@@ -90,7 +97,7 @@ def send_update_msgs():
 
         #print(msg)
 
-        pub.publish(msg)
+        plugin.detect_poses(msg)
         rospy.sleep(0.1)
     
 def send_visualization_msgs():
@@ -155,7 +162,6 @@ def send_visualization_msgs():
 if __name__ == "__main__":
     rospy.init_node("demo_node")
 
-    ts.initialize_subscribers()
     ts.initialize_transform_listener()
 
     print("starting threads")
