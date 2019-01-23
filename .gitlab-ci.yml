@@ -2,7 +2,8 @@ image: ros:indigo-ros-base
 build:
   stage: build
 
-  before_script: 
+  before_script:
+     - /bin/echo -e "deb http://robohub.eng.uwaterloo.ca/mirror/ros/ros/ubuntu/ $(lsb_release -s -c) main\n" > /etc/apt/sources.list.d/ros.list
      - apt update && apt install build-essential ros-indigo-tf -y
      - mkdir -p catkin_ws/src
      - cd catkin_ws/src
