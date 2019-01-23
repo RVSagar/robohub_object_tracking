@@ -3,7 +3,7 @@ build:
   stage: build
 
   before_script:
-     - /bin/echo -e "deb http://robohub.eng.uwaterloo.ca/mirror/ros/ros/ubuntu/ $(lsb_release -s -c) main\n" > /etc/apt/sources.list.d/ros.list
+     - /bin/echo -e "deb http://robohub.eng.uwaterloo.ca/mirror/ros/ros/ubuntu/ $(lsb_release -s -c) main\n" > /etc/apt/sources.list.d/ros-latest.list
      - apt update && apt install build-essential ros-indigo-tf -y
      - mkdir -p catkin_ws/src
      - cd catkin_ws/src
