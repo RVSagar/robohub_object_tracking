@@ -8,8 +8,5 @@ class CustomMsgPassthroughPlugin(BasePoseDetectionPlugin):
     def get_name(self):
         return "Custom"
 
-    def set_callback(self, callback):
-        self._callback = callback
-
-    def detect_poses(self, msgs):
-        self._callback(self.get_name(), msgs)
+    def passthrough_poses(self, msgs):
+        self.forward_tracked_object_pose_list(msgs)
