@@ -5,6 +5,8 @@ import geometry_utils
 from geometry_msgs.msg import PoseStamped
 from robohub_object_tracking.msg import TrackedObjectPoseList
 
+from visualization_msgs.msg import MarkerArray
+
 class TrackingSystem:
 
     def __init__(self):
@@ -56,4 +58,13 @@ class TrackingSystem:
 
     def transform_pose_to_frame(self, pose, frame):
         return self._tf_listener.transformPose(frame, pose)
+
+    def get_markers(self):
+        marker_array = MarkerArray
+
+        for obj in self._tracked_objects:
+            markers = obj.get_markers().markers
+            for marker in markers:
+                marker_array.append(marker)
         
+        return marker_array
