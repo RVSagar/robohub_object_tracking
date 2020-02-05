@@ -8,5 +8,5 @@ class CustomMsgPassthroughPlugin(BasePoseDetectionPlugin):
     def get_name(self):
         return "Custom"
 
-    def passthrough_poses(self, msgs):
+    def detect_poses(self, msgs):
         self.forward_tracked_object_pose_list(msgs)

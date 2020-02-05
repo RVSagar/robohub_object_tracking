@@ -24,7 +24,7 @@ class TrackedObject:
 
     def add_tracking_point(self, system, id, offset, marker=None):
         key = str(id)
-        if self._tracking_points[system] is None:
+        if system not in self._tracking_points.keys():
             self._tracking_points[system] = {key: offset}
             self._tracking_point_markers[system] = {key: marker}
         else:
@@ -71,16 +71,16 @@ class TrackedObject:
     def get_markers(self):
         marker_array = MarkerArray()
 
-        if self.markers is not None:
+        if self.marker is not None:
             m = self.marker
-            m.pose = self.get_pose()
+            m.pose = self.get_pose().pose
             m.header.stamp = rospy.Time.now()
             marker_array.markers.append(m)
 
         for qp_name in self._query_points.keys():
             m = self._query_point_markers[qp_name]
             if m is not None:
-                m.pose = self.get_query_point_pose(qp_name)
+                m.pose = self.get_query_point_pose(qp_name).pose
                 m.header.stamp = rospy.Time.now()
             marker_array.markers.append(m)
 
@@ -90,9 +90,9 @@ class TrackedObject:
 
                     if m is not None:
                         mp = self._tracking_points[tracking_system][tracking_point_name].pose
-                        mp = geometry_utils.transform_pose(mp, self.get_pose())
+                        mp = geometry_utils.transform_pose(mp, self.get_pose()).pose
                         m.pose = mp
                         m.header.stamp = rospy.Time.now()
                         marker_array.markers.append(m)
 
-        return markers
+        return marker_array

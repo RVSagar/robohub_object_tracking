@@ -144,10 +144,10 @@ def send_visualization_msgs():
 
     while not rospy.is_shutdown():
         
-        for m in to1.get_markers():
+        for m in to1.get_markers().markers:
             pub.publish(m)
 
-        for m in to2.get_markers():
+        for m in to2.get_markers().markers:
             pub.publish(m)
 
         rospy.sleep(0.1)
