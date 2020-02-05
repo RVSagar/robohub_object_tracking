@@ -1,22 +1,35 @@
+import rospy
+
 from geometry_msgs.msg import PoseStamped
+from visualization_msgs.msg import Marker
+from visualization_msgs.msg import MarkerArray
 
 import geometry_utils
 
 class TrackedObject:
 
-    def __init__(self, desired_frame):
+    def __init__(self, desired_frame, marker=None):
         self._frame = desired_frame
         self._pose = PoseStamped()
         self._pose.header.frame_id = desired_frame
         self._pose.pose.orientation.w = 1
         
+        self.marker = marker
 
         self._tracking_points = {}
+        self._tracking_point_markers = {}
 
         self._query_points = {}
+        self._query_point_markers = {}
 
-    def add_tracking_point(self, system, id, offset):
-        self._tracking_points[system] = {str(id): offset}
+    def add_tracking_point(self, system, id, offset, marker=None):
+        key = str(id)
+        if self._tracking_points[system] is None:
+            self._tracking_points[system] = {key: offset}
+            self._tracking_point_markers[system] = {key: marker}
+        else:
+            self._tracking_points[system][key] = offset
+            self._tracking_point_markers[system][key] = marker
 
     def is_tracked_by(self, system):
         if system not in self._tracking_points.keys():
@@ -34,8 +47,9 @@ class TrackedObject:
     def get_tracking_point_offset(self, system, id):
         return self._tracking_points[system][str(id)]
 
-    def add_query_point(self, name, pose):
+    def add_query_point(self, name, pose, marker=None):
         self._query_points[str(name)] = pose
+        self._query_point_markers[str(name)] = marker
 
     def get_query_point_pose(self, name):
         pose = self._query_points[str(name)]
@@ -54,4 +68,31 @@ class TrackedObject:
     def get_frame(self):
         return self._frame
 
-    
+    def get_markers(self):
+        markers = MarkerArray()
+
+        if self.markers is not None:
+            m = self.marker
+            m.pose = self.get_pose()
+            m.header.stamp = rospy.Time.now()
+            markers.push(m)
+
+        for qp_name in self._query_points.keys():
+            m = self._query_point_markers[qp_name]
+            if m is not None:
+                m.pose = self.get_query_point_pose(qp_name)
+                m.header.stamp = rospy.Time.now()
+            markers.push(m)
+
+        for tracking_system in self._tracking_points.keys():
+            for tracking_point_name in self._tracking_points[tracking_system].keys():
+                    m = self._tracking_point_markers[tracking_system][tracking_point_name]
+
+                    if m is not None:
+                        mp = self._tracking_points[tracking_system][tracking_point_name].pose
+                        mp = geometry_utils.transform_pose(mp, self.get_pose())
+                        m.pose = mp
+                        m.header.stamp = rospy.Time.now()
+                        markers.push(m)
+
+        return markers

@@ -32,16 +32,42 @@ ts.add_tracking_plugin(plugin)
 # Have this tracked point detected at the origin, with different rotations
 # Result: the object should move around in a circle, while rotating. It will be a red square
 # Give this a query point 1m above the object. This will be a blue dot, that should hover just ahead of the red square
-to1 = TrackedObject("map")
+m1 = Marker()
+m1.header.frame_id = "map"
+m1.ns = "demo"
+m1.id = 1
+m1.type = Marker.CUBE
+m1.action = Marker.ADD
+m1.scale.x = 0.5
+m1.scale.y = 0.05
+m1.scale.z = 0.25
+m1.color.a = 1
+m1.color.r = 1
+
+to1 = TrackedObject("map", m1)
 to1_pose = PoseStamped()
 to1_pose.pose.position = Point(*(1, 0, 0))
 to1_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
+
+
 to1.add_tracking_point("Custom", "1", to1_pose)
+
+m3 = Marker()
+m3.header.frame_id = "map"
+m3.ns = "demo"
+m3.id = 3
+m3.type = Marker.SPHERE
+m3.action = Marker.ADD
+m3.scale.x = 0.1
+m3.scale.y = 0.1
+m3.scale.z = 0.1
+m3.color.a = 1
+m3.color.b = 1
 
 qpose = PoseStamped()
 qpose.pose.position = Point(*(0,-0.5,1))
 qpose.pose.orientation = Quaternion(*(0,0,0,1))
-to1.add_query_point("test_point", qpose)
+to1.add_query_point("test_point", qpose, m3)
 
 ts.add_tracked_object(to1)
 
@@ -49,7 +75,19 @@ ts.add_tracked_object(to1)
 # Have this tracked point detected moving around a 2m radius in a circle, with constant orientation
 # Result: the object should move around the circle, without rotation; It will be a green square
 # Details: It just happens to rotate in the opposite direction as the first object
-to2 = TrackedObject("map")
+m2 = Marker()
+m2.header.frame_id = "map"
+m2.ns = "demo"
+m2.id = 2
+m2.type = Marker.CUBE
+m2.action = Marker.ADD
+m2.scale.x = 0.5
+m2.scale.y = 0.5
+m2.scale.z = 0.5
+m2.color.a = 1
+m2.color.g = 1
+
+to2 = TrackedObject("map", m2)
 to2_pose = PoseStamped()
 to2_pose.pose.position = Point(*(0, 0, 0))
 to2_pose.pose.orientation = Quaternion(*(0, 0, 0, 1))
@@ -106,55 +144,11 @@ def send_visualization_msgs():
 
     while not rospy.is_shutdown():
         
-        m1 = Marker()
-        m1.header.frame_id = "map"
-        m1.header.stamp = rospy.Time.now()
-        m1.ns = "demo"
-        m1.id = 1
-        m1.type = Marker.CUBE
-        m1.action = Marker.ADD
-        m1.pose = to1.get_pose().pose
-        m1.scale.x = 0.5
-        m1.scale.y = 0.05
-        m1.scale.z = 0.25
-        m1.color.a = 1
-        m1.color.r = 1
+        for m in to1.get_markers():
+            pub.publish(m)
 
-        pub.publish(m1)
-        
-        
-        m2 = Marker()
-        m2.header.frame_id = "map"
-        m2.header.stamp = rospy.Time.now()
-        m2.ns = "demo"
-        m2.id = 2
-        m2.type = Marker.CUBE
-        m2.action = Marker.ADD
-        m2.pose = to2.get_pose().pose
-        m2.scale.x = 0.5
-        m2.scale.y = 0.5
-        m2.scale.z = 0.5
-        m2.color.a = 1
-        m2.color.g = 1
-
-        pub.publish(m2)
-
-
-        m3 = Marker()
-        m3.header.frame_id = "map"
-        m3.header.stamp = rospy.Time.now()
-        m3.ns = "demo"
-        m3.id = 3
-        m3.type = Marker.SPHERE
-        m3.action = Marker.ADD
-        m3.pose = to1.get_query_point_pose("test_point").pose
-        m3.scale.x = 0.1
-        m3.scale.y = 0.1
-        m3.scale.z = 0.1
-        m3.color.a = 1
-        m3.color.b = 1
-
-        pub.publish(m3)
+        for m in to2.get_markers():
+            pub.publish(m)
 
         rospy.sleep(0.1)
     
