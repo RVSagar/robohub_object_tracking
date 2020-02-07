@@ -60,11 +60,12 @@ class TrackingSystem:
         return self._tf_listener.transformPose(frame, pose)
 
     def get_markers(self):
-        marker_array = MarkerArray
+        marker_array = MarkerArray()
+        marker_array.markers = []
 
         for obj in self._tracked_objects:
             markers = obj.get_markers().markers
             for marker in markers:
-                marker_array.append(marker)
+                marker_array.markers.append(marker)
         
         return marker_array
