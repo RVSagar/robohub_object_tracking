@@ -89,8 +89,8 @@ class TrackedObject:
                     m = self._tracking_point_markers[tracking_system][tracking_point_name]
 
                     if m is not None:
-                        mp = self._tracking_points[tracking_system][tracking_point_name].pose
-                        mp = geometry_utils.transform_pose(mp, self.get_pose()).pose
+                        mp = self._tracking_points[tracking_system][tracking_point_name]
+                        mp = geometry_utils.transform_pose(mp, self.get_pose())
                         m.pose = mp
                         m.header.stamp = rospy.Time.now()
                         marker_array.markers.append(m)

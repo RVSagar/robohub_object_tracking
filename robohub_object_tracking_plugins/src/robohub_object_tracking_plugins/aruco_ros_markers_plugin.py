@@ -8,7 +8,7 @@ from geometry_msgs.msg import PoseStamped
 
 class ArucoROSMarkersPlugin(BasePoseDetectionPlugin):
 
-    def __init__(self, markers_topic="/aruco_marker_publisher/markers", tracking_system_name="Aruco"):
+    def __init__(self, markers_topic="/aruco/markers", tracking_system_name="Aruco"):
         self._callback = None
         self.tracking_system_name=tracking_system_name
         self._sub = rospy.Subscriber(markers_topic, MarkerArray, callback=self.detect_poses)
