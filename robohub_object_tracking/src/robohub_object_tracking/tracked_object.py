@@ -51,12 +51,16 @@ class TrackedObject:
         self._query_points[str(name)] = pose
         self._query_point_markers[str(name)] = marker
 
-    def get_query_point_pose(self, name):
+    def get_query_point_pose(self, name, object_posestamped_mod_fn=None):
         pose = self._query_points[str(name)]
 
         out = PoseStamped()
         out.header = self.get_pose().header
-        out.pose = geometry_utils.transform_pose(pose, self.get_pose())
+        if object_posestamped_mod_fn = None:
+            out.pose = geometry_utils.transform_pose(pose, self.get_pose())
+        else:
+            obj_pose = object_posestamped_mod_fn(self.get_pose())
+            out.pose = geometry_utils.transform_pose(pose, obj_pose)
         return out
 
     def update_pose(self, new_pose):
