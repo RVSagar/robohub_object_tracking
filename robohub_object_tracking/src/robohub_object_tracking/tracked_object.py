@@ -1,4 +1,5 @@
 import rospy
+import copy
 
 from geometry_msgs.msg import PoseStamped
 from visualization_msgs.msg import Marker
@@ -8,13 +9,14 @@ import geometry_utils
 
 class TrackedObject:
 
-    def __init__(self, desired_frame, marker=None):
+    def __init__(self, desired_frame, marker=None, base_pose_correction_fn=None):
         self._frame = desired_frame
         self._pose = PoseStamped()
         self._pose.header.frame_id = desired_frame
         self._pose.pose.orientation.w = 1
         
         self.marker = marker
+        self.base_pose_correction_fn = base_pose_correction_fn
 
         self._tracking_points = {}
         self._tracking_point_markers = {}
@@ -51,23 +53,22 @@ class TrackedObject:
         self._query_points[str(name)] = pose
         self._query_point_markers[str(name)] = marker
 
-    def get_query_point_pose(self, name, object_posestamped_mod_fn=None):
+    def get_query_point_pose(self, name):
         pose = self._query_points[str(name)]
 
         out = PoseStamped()
         out.header = self.get_pose().header
-        if object_posestamped_mod_fn = None:
-            out.pose = geometry_utils.transform_pose(pose, self.get_pose())
-        else:
-            obj_pose = object_posestamped_mod_fn(self.get_pose())
-            out.pose = geometry_utils.transform_pose(pose, obj_pose)
+        out.pose = geometry_utils.transform_pose(pose, self.get_pose())
         return out
 
     def update_pose(self, new_pose):
         self._pose = new_pose
 
     def get_pose(self):
-        return self._pose
+        pose = copy.copy(self._pose)
+        if self.base_pose_correction_fn == None:
+            return pose
+        return self.base_pose_correction_fn(pose)
 
     def get_frame(self):
         return self._frame
